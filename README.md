@@ -34,3 +34,89 @@ The `interactions` dataset contains 731927 rows of reviews submitted from a user
 | `'date'` |	Date of interaction |
 | `'rating'` |	Rating given |
 | `'review'` |	Review text |
+
+## Step 2: Data Cleaning and Exploratory Data Analysis
+
+We believe that some of the most relevant columns to answer our question are `'minutes'`, `'n_steps'`, `'n_ingredients'`, and `'rating'`, as described above, along with the addition of the `'average_rating'` column, which is the average of the ratings for each unique recipe.
+
+### Data Cleaning
+
+Before beginning our analysis, we perform the following data cleaning steps to our datasets:
+
+* Left merge the `recipes` and `interactions` datasets together
+   * This step allows us to match each recipe with their respective ratings and reviews, while keeping the recipes that might not have been rated in our dataset
+
+* Convert ratings of 0 to `np.nan`
+   * Since ratings are conducted on a scale from 1 (lowest) to 5 (highest), a rating of 0 would indicate that the respective rating is missing. Therefore, we replace ratings of 0 with `np.nan` to avoid bias in any further calculations
+
+* Convert `'tags'` and `'nutrition'` columns to lists
+   * Since these columns are formatted as strings that look like list, we convert them to actual lists in order to extract usable data and meaningful information out of them
+
+* Add the following columns `'avg_rating'`, `'is_easy'`, `'calories'`, `'protein'`, and `'saturated_fat'`
+  * `'avg_rating'`: Since a recipe can have ratings from multiple different users, we take the average of all of its ratings as a metric of a recipe's overall rating
+  * `'is_easy'`: Column of booleans containing indicating whether or not a recipe has the word 'easy' in its tags, extracted from the `'tags'` column
+  * `'calories'`: Total number of calories in a recipe, extracted from the `'nutrition'` column
+  * `'protein'`: PDV (percentage daily value) of protein in a recipe, extracted from the `'nutrition'` column
+  * `'saturated_fat'`: PDV (percentage daily value) of saturated fats in a recipe, extracted from the `'nutrition'` column
+
+* Drop irrelevant columns
+   * The columns we keep for our analysis are: `'name'`, `'recipe_id'`, `'user_id'`, `'minutes'`, `'n_steps'`, `'n_ingredients'`, `'rating'`, `'avg_rating'`, `'is_easy'`, `'calories'`, `'protein'`, and `'saturated_fat'`
+
+
+| name                                 |   recipe_id |          user_id |   minutes |   n_steps |   n_ingredients |   rating |   avg_rating | is_easy   |   calories |   protein |   saturated_fat |
+|:-------------------------------------|------------:|-----------------:|----------:|----------:|----------------:|---------:|-------------:|:----------|-----------:|----------:|----------------:|
+| 1 brownies in the world    best ever |      333281 | 386585           |        40 |        10 |               9 |        4 |            4 | False     |      138.4 |         3 |              19 |
+| 1 in canada chocolate chip cookies   |      453467 | 424680           |        45 |        12 |              11 |        5 |            5 | False     |      595.1 |        13 |              51 |
+| 412 broccoli casserole               |      306168 |  29782           |        40 |         6 |               9 |        5 |            5 | True      |      194.8 |        22 |              36 |
+| 412 broccoli casserole               |      306168 |      1.19628e+06 |        40 |         6 |               9 |        5 |            5 | True      |      194.8 |        22 |              36 |
+| 412 broccoli casserole               |      306168 | 768828           |        40 |         6 |               9 |        5 |            5 | True      |      194.8 |        22 |              36 |
+
+
+### Univariate Analysis
+
+We decide to examine the distribution of minutes needed to complete a recipe for each unique recipe. We filter our data so that each recipe is only included once. As the plot below shows, the distribution is heavily skewed to the right, and a trend is difficult to see with the presence of outliers.
+
+<iframe
+  src="assets/fig.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+We create a subset dataframe called `'without_outliers'` by using the Inter Quartile Range (IQR) method to visualize the cooking time in minutes without outliers. As we can see the data is skewed right, with many recipes taking about an hour or less to complete.
+
+<iframe
+  src="assets/fig_no_outliers.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+
+### Bivariate Analysis
+
+We chose to examine the relationship between a recipe's average rating and the number of minutes it takes to make. We again use the `'without_outliers'` dataframe to properly examine the relationship without bias outliers from `'minutes'`. As we can see in the plot below, many of the recipes that take less time to make are rated highly, however since most of our data is gathered here, we can't say that there is a strong correlation between minutes and average rating. There may be a correlation between low time getting MORE ratings than high time. This is different from our assumption that low time gets high ratings and high time gets low ratings. Instead the plot shows that low time gets MORE ratings, and high time gets LESS ratings, where in both cases ratings are high. This may come from more users trying the low time recipe, and users only rating if they believe a recipe is really good or really bad. 
+
+<iframe
+  src="assets/fig4.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+Note that there is a grid-like pattern and lots of data at discretevalues because time and rating are user inputs. An explanation for this trend in time is that a recipe creator will be more likely to input a rounded number to generally convey an idea of time instead of stating exact time due to variance of equipment and or skill of the recipe follower. This trend is also seen in the average rating statistic because some recipes may have only one or two ratings, which results in averages on multiples of 0.5, or the ratings for a recipe are unanimous.
+
+### Interesting Aggregates
+
+We performed a `.mean()` aggregate to find the average amount of `'minutes'` (without outliers), `'n_steps'`, and `'n_ingredients'` for each rating. As we can see in the table below, the average number of minutes is lower for better rated recipes than it is for worse rated recipes. The same relationship follows for the number of steps. However, the average number of ingredients tends to fluctuate based on the rating, being higher for average-rated recipes, and lower for 1-star and 5-star recipes.
+
+|   avg_minutes |   avg_n_steps |   avg_n_ingredients |
+|--------------:|--------------:|--------------------:|
+|       99.6725 |      10.63    |             8.91289 |
+|       98.0215 |      10.6976  |             9.22973 |
+|       87.4976 |       9.99205 |             9.20092 |
+|       91.585  |       9.57743 |             9.10076 |
+|      106.924  |       9.9849  |             9.04675 |
+|      106.79   |      10.0178  |             9.07151 |
+
+Note that there does not exist Simpson's Paradox between any of the columns presented. Hence, we are able to aggregate by rating without consequence
