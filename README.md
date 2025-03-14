@@ -211,3 +211,53 @@ To perform this permutation test, we split the recipes into two groups: those th
 ></iframe>
 
 We obtain a p-value of **0.0** which is less than our significance level of 0.05. Therefore we **reject the null hypothesis**. This suggests that people do not rate recipes regardless of the amount of time needed to cook them; it seems that recipes that take an hour or less to make are rated higher than recipes that take longer to make.
+
+## Framing a Prediction Problem
+
+### Problem Identification
+
+**Prediction Problem:**
+We aim to predict the number of minutes that it would take to prepare a recipe.
+
+**Prediction Type:**
+Since time is a continuous quantitative variable, this would be a *regression* problem.
+
+**Features Available at Time of Prediction:**
+The features we would know before starting to cook a recipe would be: `'n_ingredients'`, `'n_steps'`, `'is_easy'`, `'calories'`, `'protein'`, `'saturated_fat'`.
+
+**Response Variable:**
+The response variable we plan to predict is the number of minutes that to prepare a recipe. We chose this variable because time is directly related to the characteristics of a recipe and is a practical thing someone might want to know before deciding whether or not to make a recipe. By being able to predict how long a recipe would take to make, people would be able to plan cooking time in their schedules accordingly.
+
+**Metric of evaluation:**
+We plan to use **$R^2$** as our metric of evaluation since it is a canonically standard evaluation metric of linear regression and will measure the quality of the linear fit, which helps determine how well our overall predictions are through the variance of data compared to the model.
+
+## Baseline Model
+
+### Model Description
+
+For our baseline model, we build a simple linear regression model to predict the number of minutes it would take to cook a recipe. To remove extreme outliers, we filter out recipes that take more than 24 hours (1440 minutes) to prepare. We trained the model using 80% of the data and used the remaining 20% to test our model's accuracy.
+
+We used the features `'n_steps'` and `'n_ingredients'` to train our model. Since both features are quantitative, no further encodings were necessary to compute.
+
+To make our model, we use a `StandardScaler` to standardize our features so that we can better interpret our model's coefficients, then use the `LinearRegression` object to fit a simple model to predict preparation time.
+
+### Results
+
+After filtering our data, we are left with 83194 unique recipes.
+
+**Training Results:**
+* $R^2$ score: 0.0333
+
+**Testing Results:**
+* $R^2$ score: 0.0353
+
+**Feature Coefficients:**
+* `'n_steps'`: +11.76 minutes (per additional step)
+* `'n_ingredients'`: +9.33 minutes (per additional ingredient)
+
+### Analysis
+
+Since our baseline model captures only about 3.33% of the variance in preparation time, our model performs poorly. However, our model provides insights such as:
+* Establishing a minimum performance benchmark
+* Confirming relationships (more ingredients/steps in a recipe correlates to a longer preparation time)
+* Shows the need for a more complex model with the use of feature engineering to improve predictions 
