@@ -35,7 +35,7 @@ The `interactions` dataset contains 731927 rows of reviews submitted from a user
 | `'rating'` |	Rating given |
 | `'review'` |	Review text |
 
-## Step 2: Data Cleaning and Exploratory Data Analysis
+## Data Cleaning and Exploratory Data Analysis
 
 We believe that some of the most relevant columns to answer our question are `'minutes'`, `'n_steps'`, `'n_ingredients'`, and `'rating'`, as described above, along with the addition of the `'average_rating'` column, which is the average of the ratings for each unique recipe.
 
@@ -121,7 +121,7 @@ We performed a `.mean()` aggregate to find the average amount of `'minutes'` (wi
 
 Note that there does not exist Simpson's Paradox between any of the columns presented. Hence, we are able to aggregate by rating without consequence.
 
-## Step 3: Assessment of Missingness
+## Assessment of Missingness
 
 There are three columns within our merged dataset that contain a large amount of missing values: `'description'`, `'rating'`, and `'review'`.
 
@@ -188,3 +188,26 @@ We run a permutation test by shuffling the missingness of rating and collecting 
   height="600"
   frameborder="0"
 ></iframe>
+
+## Hypothesis Testing
+
+As mentioned in our introduction, we are investigating the relationship between a meal's rating and its preparation time. We specifically want to assess if meals that take an hour (60 minutes) or less to make are rated higher than meals that take longer to make. To investigate this, we run a **permutation test** with the following objectives:
+
+**Null Hypothesis:** Recipes are rated the same regardless of the amount of time needed to cook them.
+
+**Alternative Hypothesis:** Recipes that take an hour or less to make have a higher rating than those that take longer to cook.
+
+**Test Statistic:** Difference in mean rating between recipes that take an hour or less to make and recipes that take more than an hour to make.
+
+**Significance Level:** 0.05
+
+To perform this permutation test, we split the recipes into two groups: those that take 60 minutes or less to make and those that take more than 60 minutes to make. Our **observed statistic** is **0.0285**. We then run 1000 simulations to generate an empirical distribution of the test statistic under the null hypothesis.
+
+<iframe
+  src="assets/fig10.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+We obtain a p-value of **0.0** which is less than our significance level of 0.05. Therefore we **reject the null hypothesis**. This suggests that people do not rate recipes regardless of the amount of time needed to cook them; it seems that recipes that take an hour or less to make are rated higher than recipes that take longer to make.
