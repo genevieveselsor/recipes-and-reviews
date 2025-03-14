@@ -255,9 +255,54 @@ After filtering our data, we are left with 83194 unique recipes.
 * `'n_steps'`: +11.76 minutes (per additional step)
 * `'n_ingredients'`: +9.33 minutes (per additional ingredient)
 
+<iframe
+  src="assets/fig11.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
 ### Analysis
 
 Since our baseline model captures only about 3.33% of the variance in preparation time, our model performs poorly. However, our model provides insights such as:
 * Establishing a minimum performance benchmark
 * Confirming relationships (more ingredients/steps in a recipe correlates to a longer preparation time)
 * Shows the need for a more complex model with the use of feature engineering to improve predictions 
+
+## Final Model
+
+### Features Added
+
+For our final model, we utilize a `RandomForestRegressor`, which has the ability to capture non-linear relationships and interactions between features, which aren't captured by the baseline model.
+
+The features we add for the purposes of building this final model are `'is_easy'`, `'calories'`, `'protein'`, and `'saturated_fat'`.
+
+* `'is_easy'`: This feature categorizes the data as easy or not easy by checking if the recipe's tags contain 'easy'. We chose this feature because it could be an indicator of a recipe taking a shorter amount of time and less ingredients, which could be useful in predicting the amount of time to complete a recipe. We one-hot encoded this feature.
+* `'calories'`: This feature contains the total amount of calories in a recipe. We chose this feature because recipes with more calories could be considered as more complex, indicating that a recipe might take longer to cook.
+* `'protein'`: This feature contains the PDV (percentage of daily value) of protein in a recipe. We chose this feature because high protein foods, such as meat, might require longer cooking times.
+* `'saturated_fat'`: This feature contains the PDV of saturated fat in a recipe. We chose this feature because foods high in saturated fats (butter, cream, fatty meats, etc.) are often found in baked goods and slower-cooked dishes, which would indicate longer cooking times.
+
+### Hyperparameters and Model
+
+The hyperparameters we focus on are `'max_depth'`, `'n_estimators'`, `'min_samples_split'`, and `'min_samples_leaf'`.
+
+* `'max_depth'`: We tune this to control the maximum depth of each decision tree. This helps balance bias (too deep) and variance (too shallow).
+* `'n_estimators'`: We tune this to control the number of decision trees in our forest. This helps find an adequate tradeoff between performance and computational efficiency.
+* `'min_samples_split'`: We tune this to control the minimum amount of samples needed to split a node. This prevents trees from splitting too much.
+* `'min_samples_leaf'`: We tune this to control the minimum amount of samples required to be in a leaf node. This helps prevent the model from overfitting.
+
+We utilize `GridSearch` to find our best hyperparameters. These hyperparameters are:
+* `'max_depth'`: 8
+* `'min_samples_leaf'`: 15
+* `'min_samples_split'`: 20
+* `'n_estimators'`: 50
+
+In our pipeline, we use a column transformer. This column transformer does the following:
+* Linearize `'n_steps'` using a log transformation, as seen on the visualization in the baseline model, the variance over minutes is very large compared to the variance of the model. To compensate for this, we can use the Tukey Mosteller Bulge Diagram.
+* OneHotEncode `'is_easy'` to transform this binary data to quantitative data
+
+### Performance Comparison
+
+This results in a training $R^2$ score of **0.1099** and a testing R2 score of **0.0800** . Because the two $R^2$ scores are so low, this tells us that the feature we are trying to model is not strongly correlated with the features we use to predict our model.
+
+Although the model's $R^2$ score is low, it is greater than the $R^2$ of our baseline model. As such, our final model is an improvement compared to our baseline.
