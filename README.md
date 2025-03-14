@@ -303,6 +303,37 @@ In our pipeline, we use a column transformer. This column transformer does the f
 
 ### Performance Comparison
 
-This results in a training $R^2$ score of **0.1099** and a testing R2 score of **0.0800** . Because the two $R^2$ scores are so low, this tells us that the feature we are trying to model is not strongly correlated with the features we use to predict our model.
+This results in a training $R^2$ score of **0.1099** and a testing $R^2$ score of **0.0800** . Because the two $R^2$ scores are so low, this tells us that the feature we are trying to model is not strongly correlated with the features we use to predict our model.
 
 Although the model's $R^2$ score is low, it is greater than the $R^2$ of our baseline model. As such, our final model is an improvement compared to our baseline.
+
+## Fairness Analysis
+
+### Fairness Question
+
+To analyze the fairness of our model, we would like to determine if our model performs worse for recipes with more steps as compared to recipes with fewer steps. We use the median, 9, as our threshold.
+
+**Group X:** Recipes that contain 9 or less steps to make
+
+**Group Y:** Recipes that contain more than 9 steps to make
+
+**Evaluation Metric:** $R^2$
+
+**Null Hypothesis:** Our model is fair, the $R^2$ for recipes with lots of steps and few steps are roughly the same, and any differences are due to random chance.
+
+**Alternative Hypothesis:** Our model is unfair, the $R^2$ for recipes with lots of steps is different than the $R^2$ for recipes with fewer steps.
+
+**Test Statistic:** Absolute difference in $R^2$
+
+**Significance Level:** 0.05
+
+### Results
+
+To test our hypotheses, we create a new column called `'is_complex'` to differentiate between recipes with more and fewer steps. We obtain an observed statistic of **0.018**. We run a permutation test, shuffling the `'is_complex'` column 1000 times to collect 1000 simulated absolute differences in the two distributions as described above. After running our permutation test, we obtain a p-value of **0.003**. Since our p-value is less than our significance level, 0.05, we **reject the null hypothesis**, suggesting that our model performs differently for recipes with more steps than it would for recipes with fewer steps. Thus our model is unfair based on this grouping.
+
+<iframe
+  src="assets/fig12.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
