@@ -119,4 +119,72 @@ We performed a `.mean()` aggregate to find the average amount of `'minutes'` (wi
 |      106.924  |       9.9849  |             9.04675 |
 |      106.79   |      10.0178  |             9.07151 |
 
-Note that there does not exist Simpson's Paradox between any of the columns presented. Hence, we are able to aggregate by rating without consequence
+Note that there does not exist Simpson's Paradox between any of the columns presented. Hence, we are able to aggregate by rating without consequence.
+
+## Step 3: Assessment of Missingness
+
+There are three columns within our merged dataset that contain a large amount of missing values: `'description'`, `'rating'`, and `'review'`.
+
+### NMAR Analysis
+
+We believe that the `'review'` column is Not Missing at Random (NMAR) because people would be less likely to write a review for a recipe that they felt indifferent about. Usually people only leave reviews if they feel an extreme opinion towards a recipe, such as if they loved or hated it, as writing out an entire review is more time consuming than simply just leaving a rating. So, the missingness of the `'review'` column is dependent on itself.
+
+Additional data we could obtain is the time spent filling out a rating and review. A lower time would be explained by a user only completing a rating, and a higher time would be explained by the time spent to write a  review. Having this feature in the dataset would change `'review'`’s missingness to Missing at Random (MAR).
+
+### Missingness Dependency
+
+We move on to test if the missingness of `'rating'` depends on the column `'minutes'`.
+
+**Null Hypothesis:** The distribution of `'minutes'` when `'rating'` is missing is the same as the distribution of `'minutes'` when `'rating'` is not missing.
+
+**Alternative Hypothesis:** The distribution of `'minutes'` when `'rating'` is missing is NOT the same as the distribution of `'minutes'` when `'rating'` is not missing.
+
+**Test Statistic:** The absolute difference of mean in minutes of the group when `'rating'` is missing and that of the group when `'rating'` is not missing.
+
+**Significance Value:** 0.05
+
+Below are the observed distributions of `'minutes'` when `'rating'` is missing (True) and not missing (False) (rescaled for visualization):
+
+<iframe
+  src="assets/fig6.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+We run a permutation test by shuffling the missingness of rating and collecting the absolute difference in the means of minutes between the two distributions described above 1000 times. Our observed test statistic is **51.4524**, which is indicated by the red line on the graph below. We obtain a p-value of **0.117**, which is greater than our significance level of 0.05. Therefore, we **fail to reject the null hypothesis**. The missingness of `'rating'` does NOT depend on `'minutes'`.
+
+<iframe
+  src="assets/fig7.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+We now move on to test if the missingness of `'rating'` depends on the column `'n_steps'`.
+
+**Null Hypothesis:** The distribution of `'n_steps'` when `'rating'` is missing is the same as the distribution of `'n_steps'` when `'rating'` is not missing.
+
+**Alternative Hypothesis:** The distribution of `'n_steps'` when `'rating'` is missing is NOT the same as the distribution of `'n_steps'` when `'rating'` is not missing.
+
+**Test Statistic:** The absolute difference of mean in the number of steps of the distribution of the group when `'rating'` is missing and the distribution of the group when `'rating'` is not missing.
+
+**Significance Value:** 0.05
+
+Below are the observed distributions of `'n_steps'` when `'rating'` is missing (True) and not missing (False):
+
+<iframe
+  src="assets/fig8.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+We run a permutation test by shuffling the missingness of rating and collecting the absolute difference in the means of the number of steps between the two distributions described above 1000 times. Our observed test statistic is **1.3386**, which is indicated by the red line on the graph below. We obtain a p-value of **0.0**, which is less than our significance level of 0.05. Therefore, we **reject the null hypothesis**. The missingness of `'rating'` does depend on `'n_steps'`.
+
+<iframe
+  src="assets/fig9.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
